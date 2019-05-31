@@ -1,0 +1,96 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+       xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:aop="http://www.springframework.org/schema/aop"
+       xmlns:context="http://www.springframework.org/schema/context"
+       xmlns:jdbc="http://www.springframework.org/schema/jdbc" xmlns:tx="http://www.springframework.org/schema/tx"
+       xmlns:task="http://www.springframework.org/schema/task"
+       xsi:schemaLocation="
+		http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans.xsd
+		http://www.springframework.org/schema/aop http://www.springframework.org/schema/aop/spring-aop.xsd
+		http://www.springframework.org/schema/context http://www.springframework.org/schema/context/spring-context.xsd
+		http://www.springframework.org/schema/jdbc http://www.springframework.org/schema/jdbc/spring-jdbc.xsd
+		http://www.springframework.org/schema/tx http://www.springframework.org/schema/tx/spring-tx.xsd">
+
+    <description>Shiro与Spring整合</description>
+
+    <!--使用redis作为缓存的额配置-->
+     <!--<bean id="redisManager" class="org.crazycake.shiro.RedisManager">
+         <property name="host" value="127.0.0.1:6379"></property>
+     </bean>
+
+     <bean id="cacheManager" class="org.crazycake.shiro.RedisCacheManager">
+         <property name="redisManager" ref="redisManager"></property>
+     </bean>-->
+
+    <!--<bean id="cacheManager" class="org.apache.shiro.cache.MemoryConstrainedCacheManager"></bean>-->
+
+    <!--使用内存作为缓存的配置 echache-->
+    <bean id="cacheManager" class="org.apache.shiro.cache.ehcache.EhCacheManager">
+        <property name="cacheManagerConfigFile" value="classpath:cache/ehcache-shiro.xml"></property>
+    </bean>
+
+    <bean id="securityManager" class="org.apache.shiro.web.mgt.DefaultWebSecurityManager">
+        <property name="realm" ref="authRealm"/><!-- 引用自定义的realm -->
+        <property name="cacheManager" ref="cacheManager"></property>
+    </bean>
+
+
+    <!-- 自定义Realm域的编写 -->
+    <bean id="authRealm" class="com.itheima.web.shiro.AuthRealm">
+        <!-- 注入自定义的密码比较器 -->
+        <property name="credentialsMatcher" ref="customerCredentialsMatcher"></property>
+    </bean>
+
+    <!-- 自定义的密码比较器 -->
+    <bean id="customerCredentialsMatcher" class="com.itheima.web.shiro.CustomCredentialsMatcher"></bean>
+
+    <!-- filter-name这个名字的值来自于web.xml中filter的名字 -->
+    <bean id="shiroFilter" class="org.apache.shiro.spring.web.ShiroFilterFactoryBean">
+        <property name="securityManager" ref="securityManager"/>
+        <!--登录页面  -->
+        <property name="loginUrl" value="/login.jsp"></property>
+        <!-- 登录失败后 -->
+        <property name="unauthorizedUrl" value="/unauthorized.jsp"></property>
+
+        <property name="filterChainDefinitions">
+            <!-- /**代表下面的多级目录也过滤 -->
+            <value>
+                <!--权限访问规则-->
+                /company/list.do = perms["企业管理"]
+                <!--匿名访问规则-->
+                /index.jsp* = anon
+                /login.jsp* = anon
+                /login* = anon
+                /logout* = anon
+                /css/** = anon
+                /img/** = anon
+                /plugins/** = anon
+                /make/** = anon
+                <!--认证访问规则-->
+                /** = authc,user
+                /*.* = authc
+            </value>
+        </property>
+    </bean>
+
+    <!-- 保证实现了Shiro内部lifecycle函数的bean执行 -->
+    <bean id="lifecycleBeanPostProcessor" class="org.apache.shiro.spring.LifecycleBeanPostProcessor"/>
+
+    <!-- 生成代理，通过代理进行控制
+         depends-on：指定当前累的创建史必须在指定bean的id后面创建
+                     lifecycleBeanPostProcessor要在DefaultAdvisorAutoProxyCreator之前
+    -->
+    <bean class="org.springframework.aop.framework.autoproxy.DefaultAdvisorAutoProxyCreator"
+          depends-on="lifecycleBeanPostProcessor">
+        <property name="proxyTargetClass" value="true"/>
+    </bean>
+
+    <!-- 安全管理器 -->
+    <bean class="org.apache.shiro.spring.security.interceptor.AuthorizationAttributeSourceAdvisor">
+        <property name="securityManager" ref="securityManager"/>
+    </bean>
+
+    <!--动态代理的代理规则，使用目标类的子类创建代理对象，使用cglib-->
+    <aop:aspectj-autoproxy proxy-target-class="true"/>
+
+</beans>

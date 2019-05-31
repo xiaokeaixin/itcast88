@@ -1,0 +1,71 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.itheima.dao.company.CompanyDao" >
+    <!--建立实体类的属性和数据库表的列名对应关系-->
+    <resultMap id="baseResultMap" type="company">
+        <id     column="id" property="id"></id>
+        <result column="name" property="name"></result>
+        <result column="expiration_date" property="expirationDate"></result>
+        <result column="address" property="address"></result>
+        <result column="license_id" property="licenseId"></result>
+        <result column="representative" property="representative"></result>
+        <result column="phone" property="phone"></result>
+        <result column="company_size" property="companySize"></result>
+        <result column="industry" property="industry"></result>
+        <result column="remarks" property="remarks"></result>
+        <result column="state" property="state"></result>
+        <result column="balance" property="balance"></result>
+        <result column="city" property="city"></result>
+    </resultMap>
+
+    <!--查询所有-->
+    <select id="findAll" resultMap="baseResultMap">
+        select * from ss_company
+    </select>
+
+    <!--查询一个-->
+    <select id="findById" resultMap="baseResultMap">
+        select * from ss_company where id = #{id}
+    </select>
+
+
+    <!--保存-->
+    <insert id="save" parameterType="company">
+        insert into
+        ss_company(id,name,expiration_date,address,license_id,representative,phone,company_size,industry,remarks,state,balance,city)
+        values(#{id},#{name},#{expirationDate},#{address},#{licenseId},#{representative},#{phone},#{companySize},#{industry},#{remarks},#{state},#{balance},#{city})
+    </insert>
+
+    <!--更新-->
+    <update id="update" parameterType="company">
+        update ss_company set
+        name=#{name},
+        expiration_date=#{expirationDate},
+        address=#{address},
+        license_id=#{licenseId},
+        representative=#{representative},
+        phone=#{phone},
+        company_size=#{companySize},
+        industry=#{industry},
+        remarks=#{remarks},
+        state=#{state},
+        balance=#{balance},
+        city=#{city}
+        where id = #{id}
+    </update>
+
+    <!--删除-->
+    <delete id="delete" parameterType="string">
+        delete from ss_company where id = #{id}
+    </delete>
+
+    <!--查询总记录数-->
+    <select id="findTotal" resultType="long">
+        SELECT COUNT(*) FROM ss_company
+    </select>
+
+    <!--查询带有分页的结果集-->
+    <select id="findPage" resultMap="baseResultMap" parameterType="java.util.Map">
+        SELECT * FROM ss_company limit #{startIndex},#{pageSize}
+    </select>
+</mapper>

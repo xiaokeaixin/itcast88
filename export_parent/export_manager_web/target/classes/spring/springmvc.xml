@@ -1,0 +1,63 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+       xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+       xmlns:aop="http://www.springframework.org/schema/aop"
+       xmlns:context="http://www.springframework.org/schema/context"
+       xmlns:mvc="http://www.springframework.org/schema/mvc" xmlns:dubbo="http://dubbo.apache.org/schema/dubbo"
+       xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans.xsd
+        http://www.springframework.org/schema/mvc http://www.springframework.org/schema/mvc/spring-mvc.xsd
+        http://www.springframework.org/schema/aop http://www.springframework.org/schema/aop/spring-aop.xsd
+        http://www.springframework.org/schema/context http://www.springframework.org/schema/context/spring-context.xsd http://dubbo.apache.org/schema/dubbo http://dubbo.apache.org/schema/dubbo/dubbo.xsd">
+
+    <!--配置springmvc创建容器时要扫描的包-->
+    <context:component-scan base-package="com.itheima.web"></context:component-scan>
+    <!--配置视图解析器-->
+    <bean id="viewResovler" class="org.springframework.web.servlet.view.InternalResourceViewResolver">
+        <property name="prefix" value="/WEB-INF/pages/"></property>
+        <property name="suffix" value=".jsp"></property>
+    </bean>
+
+    <!--通过注册服务的方式，把自定义类型转换器加入到已经存在的类型转换服务列表中-->
+    <bean id="conversionService" class="org.springframework.context.support.ConversionServiceFactoryBean">
+        <property name="converters">
+            <set>
+                <bean class="com.itheima.web.coverters.StringToDateConverter">
+                    <property name="pattern" value="yyyy-MM-dd"></property>
+                </bean>
+            </set>
+        </property>
+    </bean>
+
+    <!--开启注解支持-->
+    <mvc:annotation-driven conversion-service="conversionService"/>
+
+    <!--开启spring对注解aop的支持-->
+    <aop:aspectj-autoproxy/>
+
+    <!--dubbo的配置-->
+    <!--指定当前项目注册到dubbo中的服务名称-->
+    <dubbo:application name="export_manager_web"></dubbo:application>
+
+    <!--配置zookeeper的地址-->
+    <dubbo:registry address="zookeeper://127.0.0.1:2181"></dubbo:registry>
+
+    <!--配置扫描dubbo注解的包-->
+    <dubbo:annotation package="com.itheima.web"></dubbo:annotation>
+
+    <!--配置文件解析器-->
+    <bean id="multipartResolver" class="org.springframework.web.multipart.commons.CommonsMultipartResolver">
+        <!--设置参数：限制上传文件的大小-->
+        <property name="maxUploadSize" value="10485760"></property>
+    </bean>
+
+    <!--指定七牛云配置文件的位置 -->
+    <!--<context:property-placeholder location="classpath:properties/qiniu.properties"></context:property-placeholder>-->
+
+    <!--配置文件上传的类-->
+    <!--<bean id="fileUploadUtil" class="com.itheima.web.utils.FileUploadUtil"></bean>
+
+    &lt;!&ndash;配置springEL表达式解析对象 用于spring占位符的解析 4.3之后不用配置&ndash;&gt;
+    <bean id="propertyPlaceholderConfigurer" class="org.springframework.beans.factory.config.PropertyPlaceholderConfigurer">
+        <property name="locations" value="classpath:properties/qiniu.properties"></property>
+    </bean>-->
+</beans>

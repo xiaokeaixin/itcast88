@@ -1,0 +1,4 @@
+com\itheima\service\cargo\impl\ContractServiceImpl.class
+com\itheima\service\cargo\impl\FactoryServiceImpl.class
+com\itheima\service\cargo\impl\ExtCproductServiceImpl.class
+com\itheima\service\cargo\impl\ContractProductServiceImpl.class

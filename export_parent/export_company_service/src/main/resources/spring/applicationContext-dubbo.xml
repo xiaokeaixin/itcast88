@@ -1,0 +1,24 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+       xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+       xmlns:dubbo="http://dubbo.apache.org/schema/dubbo"
+       xsi:schemaLocation="http://www.springframework.org/schema/beans
+    http://www.springframework.org/schema/beans/spring-beans.xsd http://dubbo.apache.org/schema/dubbo http://dubbo.apache.org/schema/dubbo/dubbo.xsd">
+
+    <!--指定当前项目注册到dubbo中的服务名称-->
+    <dubbo:application name="export_company_service">
+        <!--qos监控-->
+        <dubbo:parameter key="qos.enable" value="false"></dubbo:parameter>
+    </dubbo:application>
+
+    <!--配置zookeeper的地址-->
+    <dubbo:registry address="zookeeper://127.0.0.1:2181"></dubbo:registry>
+
+    <!--配置使用的协议和要用的端口-->
+    <dubbo:protocol name="dubbo" port="20885"></dubbo:protocol>
+
+    <!--配置扫描dubbo注解的包-->
+    <dubbo:annotation package="com.itheima.service"></dubbo:annotation>
+</beans>
+
+
